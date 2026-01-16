@@ -47,10 +47,11 @@ class FF6WCClient(SNIClient):
         ctx.rom = rom_name
 
         def cmd_debug(self: "SNIClientCommandProcessor", *args: str) -> None:
+            """ /debug <address> [bit] """
             client = self.ctx.client_handler
             if isinstance(client, FF6WCClient):
                 if len(args) < 1:
-                    snes_logger.info("/debug <address> [bit]")
+                    snes_logger.info(cmd_debug.__doc__)
                     return
                 if len(args) > 1:
                     bit = int(args[1])
