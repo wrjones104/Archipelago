@@ -89,6 +89,7 @@ class PhantomTrain(Event):
             esper_item_instructions,
 
             field.HideEntity(ghost_npc_id),
+            field.RefreshEntities(),
             field.SetEventBit(event_bit.GOT_PHANTOM_TRAIN_REWARD),
             field.FinishCheck(),
             field.Return(),
@@ -107,6 +108,7 @@ class PhantomTrain(Event):
         space.write(
             field.ReturnIfEventBitClear(event_bit.GOT_PHANTOM_TRAIN_REWARD),
             field.HideEntity(ghost_npc_id),
+            field.RefreshEntities(),
             field.Return(),
         )
         self.maps.set_entrance_event(0x98, inside_last_car_entrance_event - EVENT_CODE_START)
