@@ -89,6 +89,14 @@ def flags(args):
 
     if args.gold != 0:
         flags += f" -gp {args.gold}"
+    if args.start_moogle_charms != 0:
+        flags += f" -smc {args.start_moogle_charms}"
+    if args.start_sprint_shoes != 0:
+        flags += f" -sshoes {args.start_sprint_shoes}"
+    if args.start_warp_stones != 0:
+        flags += f" -sws {args.start_warp_stones}"
+    if args.start_fenix_downs != 0:
+        flags += f" -sfd {args.start_fenix_downs}"
     if args.start_tools != 0:
         flags += f" -sto {args.start_tools}"
     if args.start_junk != 0:
