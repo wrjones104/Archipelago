@@ -78,12 +78,22 @@ class DashboardServer:
         return bots
 
     async def handle_index(self, request: web.Request) -> web.Response:
-        html_path = os.path.join(os.path.dirname(__file__), "dashboard.html")
-        if os.path.exists(html_path):
-            with open(html_path, "r", encoding="utf-8") as f:
-                content = f.read()
-        else:
-            content = "<h1>Auto World Dashboard</h1><p>dashboard.html not found</p>"
+        content = ""
+        try:
+            import pkgutil
+            data = pkgutil.get_data("worlds.auto_world", "dashboard.html")
+            if data:
+                content = data.decode("utf-8")
+        except Exception:
+            pass
+
+        if not content:
+            html_path = os.path.join(os.path.dirname(__file__), "dashboard.html")
+            if os.path.exists(html_path):
+                with open(html_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            else:
+                content = "<h1>Auto World Dashboard</h1><p>dashboard.html not found</p>"
         return web.Response(text=content, content_type="text/html")
 
     async def handle_ws(self, request: web.Request) -> web.WebSocketResponse:

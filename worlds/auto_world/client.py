@@ -734,6 +734,18 @@ async def console_loop(manager: BotManager):
 def main(*cli_args: str):
     init_logging("AutoWorldBot")
 
+    # Support launching via Archipelago URI
+    if cli_args and len(cli_args) == 1 and (
+        cli_args[0].startswith("archipelago://")
+        or cli_args[0].startswith("ws://")
+        or cli_args[0].startswith("wss://")
+    ):
+        parsed = urllib.parse.urlparse(cli_args[0])
+        connect_host = f"{parsed.hostname}:{parsed.port}" if parsed.port else (parsed.hostname or "localhost:38281")
+        slot = urllib.parse.unquote(parsed.username) if parsed.username else "Bot1"
+        password = urllib.parse.unquote(parsed.password) if parsed.password else ""
+        cli_args = ("--connect", connect_host, "--slots", slot, "--password", password)
+
     parser = argparse.ArgumentParser(description="Archipelago Auto World Automated Bot Client")
     parser.add_argument("--connect", "-c", default="localhost:38281", help="Archipelago server host:port")
     parser.add_argument("--password", "-p", default="", help="Archipelago room password")
@@ -743,6 +755,8 @@ def main(*cli_args: str):
     parser.add_argument("--no-auto", action="store_true", help="Start with autonomous checks paused")
     parser.add_argument("--web-port", type=int, default=8080, help="Port for the interactive Web Dashboard (default: 8080)")
     parser.add_argument("--no-web", action="store_true", help="Disable the interactive Web Dashboard")
+    parser.add_argument("--open-browser", action="store_true", default=True, help="Open Web Dashboard in browser upon launch")
+    parser.add_argument("--no-browser", action="store_false", dest="open_browser", help="Do not open browser automatically")
 
     args = parser.parse_args(cli_args if cli_args else None)
 
@@ -764,10 +778,19 @@ def main(*cli_args: str):
         from .dashboard import DashboardServer
         dashboard = DashboardServer(manager, host="0.0.0.0", port=args.web_port)
 
-    try:
+    async def _start_services():
         if dashboard:
-            loop.create_task(dashboard.start())
-        loop.create_task(manager.start_all())
+            await dashboard.start()
+            if args.open_browser:
+                try:
+                    import webbrowser
+                    webbrowser.open(f"http://localhost:{dashboard.port}")
+                except Exception:
+                    pass
+        await manager.start_all()
+
+    try:
+        loop.create_task(_start_services())
         loop.run_until_complete(console_loop(manager))
     except KeyboardInterrupt:
         logger.info("[SYSTEM] Interrupted by user. Exiting...")

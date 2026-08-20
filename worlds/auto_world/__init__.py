@@ -97,3 +97,6 @@ class AutoWorldWorld(World):
             "check_interval_variance": self.options.check_interval_variance.value,
             "goal": self.options.goal.value,
         }
+
+
+from . import components

@@ -12,6 +12,8 @@ components.append(
         func=run_client,
         game_name="Auto World",
         component_type=Type.CLIENT,
+        supports_uri=True,
         cli=True,
+        description="Autonomous testing bots and live Web Dashboard for Archipelago.",
     )
 )
