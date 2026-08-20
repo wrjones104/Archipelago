@@ -40,7 +40,7 @@ python -m worlds.auto_world.client --connect archipelago.today:58493 --slots Bot
 - `--interval` / `-i`: Base check interval in seconds (default: `30.0`).
 - `--variance` / `-v`: Random interval jitter percentage (default: `30.0`, meaning $\pm 30\%$).
 - `--no-auto`: Start with autonomous checking paused (for manual testing).
-- `--web-port`: Port for the interactive Web Dashboard (default: `8080`).
+- `--web-port`: Port for the interactive Web Dashboard (default: `8080`). If the port is already occupied, the manager automatically increments to the next available open port (e.g. `8081`, `8082`).
 - `--no-web`: Disable the embedded Web Dashboard server.
 
 ---

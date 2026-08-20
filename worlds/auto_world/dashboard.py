@@ -117,16 +117,32 @@ class DashboardServer:
 
         return ws
 
-    async def start(self):
+    async def start(self, max_attempts: int = 50):
         app = web.Application()
         app.router.add_get("/", self.handle_index)
         app.router.add_get("/ws", self.handle_ws)
 
         self.runner = web.AppRunner(app)
         await self.runner.setup()
-        self.site = web.TCPSite(self.runner, self.host, self.port)
-        await self.site.start()
-        logger.info(f"[DASHBOARD] Web UI active at http://localhost:{self.port}")
+
+        start_port = self.port
+        current_port = start_port
+
+        for attempt in range(max_attempts):
+            try:
+                self.site = web.TCPSite(self.runner, self.host, current_port)
+                await self.site.start()
+                self.port = current_port
+                if current_port != start_port:
+                    logger.info(f"[DASHBOARD] Port {start_port} in use. Auto-switched to open port {self.port}.")
+                logger.info(f"[DASHBOARD] Web UI active at http://localhost:{self.port}")
+                return
+            except OSError as e:
+                if attempt < max_attempts - 1:
+                    current_port += 1
+                else:
+                    logger.error(f"[DASHBOARD] Failed to find an open port between {start_port} and {current_port}: {e}")
+                    raise
 
     async def stop(self):
         for ws in list(self.ws_clients):
